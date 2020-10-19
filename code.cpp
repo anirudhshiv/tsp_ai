@@ -2,9 +2,15 @@
 #include <string.h>
 using namespace std;
 
-vector<vector<int>> best_tour_calculator(int N, vector<pair<float,float>> city_coords, vector<vector<float>> distances)
+vector<vector<int>> best_tour_calculator(string S, int N, vector<pair<float,float>> city_coords, vector<vector<float>> distances)
 {
 	vector<vector<int>> _ret;
+	std::vector<int> temp;
+	for(int i=0; i<N; i++)
+	{
+		temp.push_back(N-1-i);
+	}
+	_ret.push_back(temp);
 	return _ret;
 }
 
@@ -33,13 +39,16 @@ int main()
 		distances.push_back(temp);
 		temp.clear();
 	}
-	tours = best_tour_calculator(no_of_cities,city_coords,distances);
+	printf("input read succesful\n");
+	tours = best_tour_calculator(S,no_of_cities,city_coords,distances);
 	for(int i=0; i<tours.size(); i++)
 	{
-		for(int i=0; i<tours[1].size(); i++)
+		for(int j=0; j<tours[i].size(); j++)
 		{
-			cout<<tours[1][i]<<" ";
+			cout<<tours[i][j]<<" ";
 		}
 		cout<<endl;
 	}
+	printf("output ends\n");
+	return 0;
 }

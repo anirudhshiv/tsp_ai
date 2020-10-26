@@ -29,7 +29,7 @@ bool form_loop(vector<vector<bool>> &adj_mat, int x, int y,int base)
 	return true;
 }
 
-bool check_val(vector<vector<bool>> adj_mat, int base)
+bool check_val(vector<vector<bool>> &adj_mat, int base)
 {
 	int count = 0;
 	int curr_node=base;
@@ -61,9 +61,9 @@ bool check_val(vector<vector<bool>> adj_mat, int base)
 	return false;
 }
 
-void print_tour(vector<vector<bool>> adj_mat, int base)
+vector<int> print_tour(vector<vector<bool>> &adj_mat, int base)
 {
-	if(!check_val(adj_mat,base)) return;
+	vector<int> v;
 	int curr_node=base;
 	int prev_node=base;
 	// cout<<base<<" ";
@@ -72,6 +72,7 @@ void print_tour(vector<vector<bool>> adj_mat, int base)
 		if(adj_mat[curr_node][k])
 		{
 			cout<<k<<" ";
+			v.push_back(k);
 			curr_node = k;
 		}
 	}
@@ -82,6 +83,7 @@ void print_tour(vector<vector<bool>> adj_mat, int base)
 			if((adj_mat[curr_node][k])&&(prev_node!=k))
 			{
 				cout<<k<<" ";
+				v.push_back(k);
 				prev_node = curr_node;
 				curr_node = k;
 				break;
@@ -90,13 +92,58 @@ void print_tour(vector<vector<bool>> adj_mat, int base)
 	}
 	// cout<<"\n*end of tour*\n";
 	cout<<endl;
-	return;
+	return v;
 }
+
+// vector<vector<bool>> make_adj(vector<pair<int,int>> edge_set, int N)
+// {
+// 	vector<vector<bool>> adj_mat;
+// 	vector<bool> temp_fv(N,false);
+// 	for (int i = 0; i < N; ++i)
+// 	{
+// 		adj_mat.push_back(temp_fv);
+// 	}
+// 	for (int i = 0; i < edge_set.size(); ++i)
+// 	{
+// 		adj_mat[edge_set[i].first][edge_set[i].second]=true;
+// 		adj_mat[edge_set[i].second][edge_set[i].first]=true;
+// 	}
+// 	return adj_mat;	
+// }
+
+// void two_opt(vector<int> tour,vector<vector<float>> dist)
+// {
+// 	vector<pair<int,int>> edge_set;
+// 	for(int i=0; i<tour.size(); i++)
+// 	{
+// 		edge_set.push_back(make_pair(tour[i],tour[(i+1)%tour.size()]));
+// 	}
+// 	for(int i=0; i<edge_set.size()-1; i++)
+// 	{
+// 		for(int j=i+1; j<edge_set.size(); j++)
+// 		{
+// 			if(edge_set[i].first!=edge_set[j].first && edge_set[i].first!=edge_set[j].second && edge_set[i].second!=edge_set[j].first && edge_set[i].second!=edge_set[j].second)
+// 			{
+// 				if(dist[edge_set[i].first][edge_set[i].second] + dist[edge_set[j].first][edge_set[j].second] > dist[edge_set[i].first][edge_set[j].second] + dist[edge_set[j].first][edge_set[i].second])
+// 				{
+// 					// cout<<"saved:"<<dist[edge_set[i].first][edge_set[i].second] + dist[edge_set[j].first][edge_set[j].second] - (dist[edge_set[i].first][edge_set[j].second] + dist[edge_set[j].first][edge_set[i].second]);
+// 					int temp = edge_set[i].first;
+// 					edge_set[i].first = edge_set[j].first;
+// 					edge_set[j].first = temp;
+// 				}
+// 			}
+// 		}
+// 	}
+// 	auto adj_mat = make_adj(edge_set,tour.size());
+// 	if(!check_val(adj_mat,0))
+// 		print_tour(adj_mat,0);
+// }
 
 void best_tour_calculator(string S, int N, vector<pair<float,float>> &city_coords, vector<vector<float>> &distances)
 {
+	// int fail_itr=0;
 	vector<vector<int>> _ret;
-	std::vector<int> temp;
+	vector<int> temp;
 	int base=0;
 	float last_tour_cost = FLT_MAX;
 	for(int i=0;i<N;i++)
@@ -189,12 +236,21 @@ void best_tour_calculator(string S, int N, vector<pair<float,float>> &city_coord
 			savings.pop();
 		}
 		// cout<<savings.empty()<<endl;
-		if(tour_cost<last_tour_cost)
+		if((tour_cost<last_tour_cost)&&(check_val(adj_mat,base)))
 		{
-			// cout<<"tour cost: "<<tour_cost<<endl;
-			print_tour(adj_mat,base);
+			temp = print_tour(adj_mat,base);
 			last_tour_cost = tour_cost;
+			// fail_itr=0;
 		}
+		// else
+		// {
+		// 	fail_itr++;
+		// 	if(fail_itr>N/10)
+		// 	{
+		// 		two_opt(temp, distances);
+		// 	}
+		// }
+		// two_opt(temp, distances);
 	}
 	return ;
 }

@@ -2,133 +2,203 @@
 #include <string.h>
 using namespace std;
 
-vector<vector<int>> best_tour_calculator(string S, int N, vector<pair<float,float>> &city_coords, vector<vector<float>> &distances)
+bool form_loop(vector<vector<bool>> &adj_mat, int x, int y,int base)
 {
-	vector<vector<int>> _ret;
-	std::vector<int> temp;
-	int base=0;
-	float last_tour_cost = FLT_MAX;
-	float tour_cost = 2*accumulate(distances[base].begin(),distances[base].end(),0.0);
-	float temp_cost = 0.0;
-	int temp_i,temp_j;
-	std::vector<int> edges_to_base(N,2);
-	edges_to_base[base] = 0;
-	vector<vector<bool>> adj_mat;
-	vector<bool> temp(N,false);
-	vector<bool> temp_t(N,true);
-	temp[base] = true;
-	temp_t[base] = false;
-	priority_queue<tuple<float,int,int>> savings;
-	for (int i = 0; i < N; ++i)
+	int curr_node=x;
+	int prev_node=base;
+	while(1)
 	{
-		if(i!=base)
-			adj_mat.push_back(temp);
-		else
-			adj_mat.push_back(temp_t);
-	}
-	for(int i=0; i<N-1; i++)
-	{
-		if(base!=i)
+		int j=0;
+		while(j<adj_mat[x].size())
 		{
-			for(int j=i+1; j<N-1; j++)
+			if(adj_mat[curr_node][j] && j!=prev_node)
 			{
-				if(base!=j)
-				{
-					savings.push(make_tuple(distances[base][j]+distances[base][i]-distances[i][j], i, j));
-				}
-			}
-		}
-	}
-	while(!savings.empty())
-	{
-		auto top = savings.top();
-		if(edges_to_base[get<1>(top)]||edges_to_base[get<2>(top)])
-		{
-			savings.pop();
-			break;
-		}
-		if((edges_to_base[get<1>(top)]==1)&&(edges_to_base[get<2>(top)]==1))
-		{
-			if(form_loop(adj_mat,get<1>(top),get<2>(top),base))
-			{
-				savings.pop();
+				if(j==y)
+					return false;
+				if(j==base)
+					return true;
 				break;
 			}
-			adj_mat[get<1>(top)][get<2>(top)]=true;
-			adj_mat[get<2>(top)][get<1>(top)]=true;
-			tour_cost -= get<0>(top);
-			edges_to_base[get<2>(top)]--;
-			edges_to_base[get<1>(top)]--;
+			j++;
 		}
-		else
-		{
-			adj_mat[get<1>(top)][get<2>(top)]=true;
-			adj_mat[get<2>(top)][get<1>(top)]=true;
-			tour_cost -= get<0>(top);
-			edges_to_base[get<2>(top)]--;
-			edges_to_base[get<1>(top)]--;
-		}
-		savings.pop();
+		if(j==adj_mat[x].size())
+			break;
+		prev_node = curr_node;
+		curr_node = j;
 	}
-	
-		// int max1_in=-1,max2_in=-1;
-		// float max1=0.0, max2=0.0, save=0.0;
-		// for(int j=0; j<edges.size(); j++)
-		// {
-		// 	if(get<2>(edges[j]) > max2)
-		// 	{
-		// 		if(get<2>(edges[j]) > max1)
-		// 		{
-		// 			max2 = max1;
-		// 			max2_in = max1_in;
-		// 			max1 = get<2>(edges[j]);
-		// 			max1_in = j;
-		// 		}
-		// 		else
-		// 		{
-		// 			max2_in = j;
-		// 			max2 = get<2>(edges[j]);
-		// 		}
-		// 	}
-		// }
-	return _ret;
+	return true;
 }
 
-bool form_loop(vector<vector<bool>> &adj_mat, int i, int j,int base)
+bool check_val(vector<vector<bool>> adj_mat, int base)
 {
-	int curr_node=i;
-	int prev_node=i;
+	int count = 0;
+	int curr_node=base;
+	int prev_node=base;
+	// cout<<base<<" ";
 	for(int k=0;k<adj_mat[curr_node].size();k++)
 	{
 		if(adj_mat[curr_node][k])
 		{
-			if(k==j)
-				return true;
-			else if(k==base);
-			else
-				curr_node = k;
+			count++;
+			curr_node = k;
 		}
 	}
-	while(1)
+	while(curr_node!=base)
 	{
 		for(int k=0;k<adj_mat[curr_node].size();k++)
 		{
 			if((adj_mat[curr_node][k])&&(prev_node!=k))
 			{
-				if(k==j)
-					return true;
-				else if(k==base)
-					return false;
-				else
-				{
-					prev_node = curr_node;
-					curr_node = k;
-					break;
-				}
+				count++;
+				prev_node = curr_node;
+				curr_node = k;
+				break;
 			}
 		}
 	}
+	if(count==adj_mat.size())
+		return true;
+	return false;
 }
+
+void print_tour(vector<vector<bool>> adj_mat, int base)
+{
+	if(!check_val(adj_mat,base)) return;
+	int curr_node=base;
+	int prev_node=base;
+	// cout<<base<<" ";
+	for(int k=0;k<adj_mat[curr_node].size();k++)
+	{
+		if(adj_mat[curr_node][k])
+		{
+			cout<<k<<" ";
+			curr_node = k;
+		}
+	}
+	while(curr_node!=base)
+	{
+		for(int k=0;k<adj_mat[curr_node].size();k++)
+		{
+			if((adj_mat[curr_node][k])&&(prev_node!=k))
+			{
+				cout<<k<<" ";
+				prev_node = curr_node;
+				curr_node = k;
+				break;
+			}
+		}
+	}
+	// cout<<"\n*end of tour*\n";
+	cout<<endl;
+	return;
+}
+
+void best_tour_calculator(string S, int N, vector<pair<float,float>> &city_coords, vector<vector<float>> &distances)
+{
+	vector<vector<int>> _ret;
+	std::vector<int> temp;
+	int base=0;
+	float last_tour_cost = FLT_MAX;
+	for(int i=0;i<N;i++)
+	{
+		base = i;
+		float tour_cost = 2*accumulate(distances[base].begin(),distances[base].end(),0.0);
+		// float temp_cost = 0.0;
+		int temp_i,temp_j;
+		vector<int> edges_to_base(N,2);
+		edges_to_base[base] = 0;
+		vector<vector<bool>> adj_mat;
+		vector<bool> temp_fv(N,false);
+		vector<bool> temp_tv(N,true);
+		temp_fv[base] = true;
+		temp_tv[base] = false;
+		priority_queue<tuple<float,int,int>> savings;
+		for (int i = 0; i < N; ++i)
+		{
+			if(i!=base)
+				adj_mat.push_back(temp_fv);
+			else
+				adj_mat.push_back(temp_tv);
+		}
+		for(int i=0; i<N; i++)
+		{
+			if(base!=i)
+			{
+				for(int j=i+1; j<N; j++)
+				{
+					if(base!=j)
+					{
+						savings.push(make_tuple(distances[base][j]+distances[base][i]-distances[i][j], i, j));
+					}
+				}
+			}
+		}
+		// cout<<"savings size:"<<savings.size()<<endl;
+		// cout<<savings.empty()<<endl;
+		// auto top = savings.top();
+		// cout<<get<0>(top)<<" "<<get<1>(top)<<" "<<get<2>(top)<<endl;
+		while(!savings.empty())
+		{
+
+			// cout<<"edges of 5 to base"<<edges_to_base[5]<<endl;
+			auto top = savings.top();
+			int i=get<1>(top),j=get<2>(top);
+			float cost = get<0>(top);
+			if(edges_to_base[i]>0 && edges_to_base[j]>0)
+			{
+				if((edges_to_base[i]==1)&&(edges_to_base[j]==1))
+				{
+					// cout<<"going to check loop with i and j as"<<i<<" and "<<j<<endl;
+					if(form_loop(adj_mat,i,j,base))
+					{
+						// cout<<"func out true"<<endl;
+						adj_mat[i][j]=true;
+						adj_mat[j][i]=true;
+						adj_mat[i][base]=false;
+						adj_mat[base][i]=false;
+						adj_mat[j][base]=false;
+						adj_mat[base][j]=false;
+						tour_cost -= cost;
+						edges_to_base[j]--;
+						edges_to_base[i]--;
+						// cout<<"added "<<i<<" "<<j<<endl;
+					}
+					// else
+						// cout<<"func out false"<<endl;
+				}
+				else
+				{
+					adj_mat[i][j]=true;
+					adj_mat[j][i]=true;
+					if(edges_to_base[i]==1)
+					{
+						adj_mat[i][base]=false;
+						adj_mat[base][i]=false;
+					}
+					if(edges_to_base[j]==1)
+					{
+						adj_mat[j][base]=false;
+						adj_mat[base][j]=false;
+					}
+					tour_cost -= cost;
+					edges_to_base[j]--;
+					edges_to_base[i]--;
+					// cout<<"added "<<i<<" "<<j<<endl;
+				}
+			}
+			savings.pop();
+		}
+		// cout<<savings.empty()<<endl;
+		if(tour_cost<last_tour_cost)
+		{
+			// cout<<"tour cost: "<<tour_cost<<endl;
+			print_tour(adj_mat,base);
+			last_tour_cost = tour_cost;
+		}
+	}
+	return ;
+}
+
 
 int main()
 {
@@ -138,7 +208,7 @@ int main()
 	vector<pair<float,float>> city_coords;
 	vector<vector<float>> distances;
 	vector<float> temp;
-	vector<vector<int>> tours; 
+	// vector<vector<int>> tours; 
 	getline(cin,S);
 	cin>>no_of_cities;
 	for(int i=0; i<no_of_cities; i++)
@@ -156,16 +226,8 @@ int main()
 		distances.push_back(temp);
 		temp.clear();
 	}
-	printf("input read succesful\n");
-	tours = best_tour_calculator(S,no_of_cities,city_coords,distances);
-	for(int i=0; i<tours.size(); i++)
-	{
-		for(int j=0; j<tours[i].size(); j++)
-		{
-			cout<<tours[i][j]<<" ";
-		}
-		cout<<endl;
-	}
-	printf("output ends\n");
+	// printf("input read succesful\n");
+	best_tour_calculator(S,no_of_cities,city_coords,distances);
+	// printf("output ends\n");
 	return 0;
 }

@@ -2,7 +2,7 @@
 #include <string.h>
 using namespace std;
 
-vector<vector<int>> best_tour_calculator(string S, int N, vector<pair<float,float>> city_coords, vector<vector<float>> distances)
+vector<vector<int>> best_tour_calculator(string S, intwwdw N, vector<pair<float,float>> city_coords, vector<vector<float>> distances)
 {
 	vector<vector<int>> _ret;
 	std::vector<int> temp;

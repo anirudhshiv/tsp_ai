@@ -12,9 +12,9 @@ Currently the code doesn't check if the switch is generating a valid tour or not
 
 ## How to run
 ### Ubuntu/Linux:
->>> g++ code.cpp -o tsp
->>> ./tsp < _input_file > _output_file
+> g++ code.cpp -o tsp
+> ./tsp < _input_file > _output_file
 
 ### Windows:
->>> g++ code.cpp -o tsp
->>> tsp < _input_file > _output_file
+> g++ code.cpp -o tsp
+> tsp < _input_file > _output_file

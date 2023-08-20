@@ -287,3 +287,6 @@ int main()
 	// printf("output ends\n");
 	return 0;
 }
+
+
+///edits to bugs (debug)
